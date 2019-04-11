@@ -44,7 +44,7 @@ class Handle extends Thread {
     }
 
     private void processInput(String clientData) {
-        System.out.println('>' + clientData);
+        // System.out.println('>' + clientData);
 
         final int LOGIN_OFFSET = -1;
         final int PASSWORD_OFFSET = -2;
@@ -63,7 +63,11 @@ class Handle extends Thread {
             login = null;
             password = null;
         }
-        System.out.println("login: " + login + "\npassword: " + password);
+        UserAuth ua = new UserAuth(login, password);
+        if (!ua.isAuth()) {
+            send("Uncorrect login or password");
+            return;
+        }
 
         final String PREAMBLE = "#####";
         if (clientData.indexOf(PREAMBLE) == 0)

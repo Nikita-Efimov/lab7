@@ -6,11 +6,6 @@ import org.w3c.dom.*;
 import org.json.*;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.OutputKeys;
 import org.xml.sax.InputSource;
 
 class ClientInteraction {
@@ -103,6 +98,7 @@ class ClientInteraction {
                         }
                         login = str.split(" ")[1].trim();
                         password = str.split(" ")[2].trim();
+                        password = SHA1.encrypt(password);
                     } else {
                         // Send cmd to server
                         out.write(str + ' ' + password + ' ' + login  + '\n');
