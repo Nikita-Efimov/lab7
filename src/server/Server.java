@@ -63,6 +63,18 @@ class Handle extends Thread {
             login = null;
             password = null;
         }
+
+        // проверяем нужна ли регистрация
+        splittedStr = clientData.split(" ");
+        if (splittedStr[0].equals("reg")) {
+            if (splittedStr.length != 2)
+                System.out.println("uncorrect syntax, correct syntax reg <login>");
+            else
+                UserAuth.register(splittedStr[1]);
+
+            return;
+        }
+
         UserAuth ua = new UserAuth(login, password);
         if (!ua.isAuth()) {
             send("Uncorrect login or password");

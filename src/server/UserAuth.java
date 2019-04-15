@@ -5,6 +5,8 @@ class UserAuth {
     private boolean isAuth;
 
     public static void register(final String login) {
+        System.out.println("Try to register with: " + login);
+
         SecureRandom rand = new SecureRandom();
         rand.setSeed(Clock.systemUTC().millis());
         // System.out.println(rand.next(10));
@@ -13,7 +15,6 @@ class UserAuth {
     public UserAuth(final String login, final String password) {
         System.out.println("login: " + login);
         System.out.println("password: " + password);
-        // for (int i = 0; i < 10; i++) UserAuth.register("kek");
 
         isAuth = false;
     }
