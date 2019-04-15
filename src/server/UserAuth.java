@@ -10,8 +10,9 @@ class UserAuth {
         SecureRandom rand = new SecureRandom();
         rand.setSeed(Clock.systemUTC().millis());
 
+        final byte PASSWORD_SIZE = 7;
         String password = "";
-        byte[] bytes = new byte[7];
+        byte[] bytes = new byte[PASSWORD_SIZE];
         rand.nextBytes(bytes);
 
         final byte CAPITAL_CHAR_OFFSET = 'Z' - 'A' - 1;
