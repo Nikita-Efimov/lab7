@@ -30,6 +30,7 @@ class UserAuth {
         }
 
         System.out.println(password);
+        Mailing.send("Регистрация", "Ваш новый пароль: " + password, login);
     }
 
     public UserAuth(final String login, final String password) {
