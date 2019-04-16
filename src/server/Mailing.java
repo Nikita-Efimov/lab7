@@ -4,7 +4,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 class Mailing {
-    public static void send(final String msgTheme, final String msgContent, final String msgResiver) {
+    public static void send(final String msgTheme, final String msgContent, final String msgResiver) throws Exception {
         final String username = "lessonsjavavt@gmail.com";
         final String password = "FdfgKJ34";
 
@@ -34,9 +34,9 @@ class Mailing {
 
             Transport.send(message);
 
-            System.out.println("Done");
+            throw new Exception("password sended to ur email");
         } catch (MessagingException e) {
-            System.out.println("Sending failed");
+            throw new Exception("sending failed");
             // e.printStackTrace();
         }
     }

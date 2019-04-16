@@ -4,7 +4,7 @@ import java.time.Clock;
 class UserAuth {
     private boolean isAuth;
 
-    public static void register(final String login) {
+    public static void register(final String login) throws Exception {
         System.out.println("Try to register with: " + login);
 
         SecureRandom rand = new SecureRandom();
@@ -29,8 +29,7 @@ class UserAuth {
             }
         }
 
-        System.out.println(password);
-        Mailing.send("Регистрация", "Ваш новый пароль: " + password, login);
+        Mailing.send("Регистрация", "Вы успешно зарегистрировались!\nВаш пароль: " + password, login);
     }
 
     public UserAuth(final String login, final String password) {

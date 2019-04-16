@@ -71,7 +71,11 @@ class Handle extends Thread {
                 if (splittedStr.length != 2)
                     send("uncorrect syntax, correct syntax reg <login>");
                 else
-                    UserAuth.register(splittedStr[1]);
+                    try {
+                        UserAuth.register(splittedStr[1]);
+                    } catch (Exception e) {
+                        send(e.toString().substring(21));
+                    }
 
                 return;
             }
