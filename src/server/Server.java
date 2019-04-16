@@ -66,16 +66,19 @@ class Handle extends Thread {
 
         // проверяем нужна ли регистрация
         splittedStr = clientData.split(" ");
-        if (splittedStr[0].equals("reg")) {
-            if (splittedStr.length != 2)
-                send("uncorrect syntax, correct syntax reg <login>");
-            else
-                UserAuth.register(splittedStr[1]);
+        try {
+            if (splittedStr[0].equals("reg")) {
+                if (splittedStr.length != 2)
+                    send("uncorrect syntax, correct syntax reg <login>");
+                else
+                    UserAuth.register(splittedStr[1]);
 
-            return;
-        }
+                return;
+            }
+        // empty str
+        } catch (ArrayIndexOutOfBoundsException ingnored) {}
 
-        // авторизируемся значитца 
+        // авторизируемся значитца
         UserAuth ua = new UserAuth(login, password);
         if (!ua.isAuth()) {
             send("Uncorrect login or password");
