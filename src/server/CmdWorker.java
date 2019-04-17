@@ -1,20 +1,29 @@
-import java.util.*;
-import org.json.*;
-import java.io.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.OutputKeys;
-import org.w3c.dom.Attr;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 final class Key {
     public Function<String, String> func;
@@ -52,6 +61,8 @@ public class CmdWorker {
         cmdMap.put("help", new Key(this::list,  "просмотр списка команд"));
         cmdMap.put("man", new Key(this::man,  "описание команд"));
         cmdMap.put("exit", new Key(this::exit,  "выход"));
+
+
     }
 
     public CmdWorker() {
@@ -243,6 +254,8 @@ public class CmdWorker {
         City city = processInput(jsonElem);
         if (city == null) return "";
 
+
+
         priorityQueue.add(city);
         lastChangeDate = new Date();
         return "";
@@ -295,3 +308,14 @@ public class CmdWorker {
         return "";
     }
 }
+
+
+
+
+
+
+
+
+
+
+

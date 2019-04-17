@@ -126,8 +126,11 @@ public class Server {
     public static final int PORT = 8080;
     public static LinkedList<Handle> serverList = new LinkedList<>(); // список всех нитей - экземпляров
     // сервера, слушающих каждый своего клиента
-
+    static Database db;
     public static void main(String[] args) throws IOException {
+        db =new Database();
+
+
         ServerSocket server = new ServerSocket(PORT);
         System.out.println("Сервер запущен");
         try {
