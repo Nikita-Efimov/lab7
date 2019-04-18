@@ -21,6 +21,24 @@ server: $(binaries_dir)$(server_dir)*.class
 	######## START #########
 	java -cp $(class_path):$(binaries_dir)$(server_dir) Server
 
+#Jar_client
+client-jar:
+	@echo 'Manifest-Version: 1.0' > manifest.txt
+	@echo 'Class-Path: bin/client/ $(lib_path)json.jar' >> manifest.txt
+	@echo 'Main-Class: Client ' >> manifest.txt
+	@echo '' >> manifest.txt
+
+	jar -cvfm Client.jar manifest.txt $(lib_path)* $(binaries_dir)$(client_dir)*.class
+
+#Jar_server
+server-jar:
+	@echo 'Manifest-Version: 1.0' > manifest.txt
+	@echo 'Class-Path: bin/server/ $(lib_path)json.jar' >> manifest.txt
+	@echo 'Main-Class: Server ' >> manifest.txt
+	@echo '' >> manifest.txt
+
+	jar -cvfm Server.jar manifest.txt $(lib_path)* $(binaries_dir)$(server_dir)*.class
+
 # Compiling
 # Other
 $(binaries_dir)$(other_dir)*.class: $(src_dir)$(other_dir)*.java bin
