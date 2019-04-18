@@ -72,6 +72,10 @@ class Handle extends Thread {
                     send("uncorrect syntax, correct syntax reg <login>");
                 else
                     try {
+                        DBUserInteractionable db = (DBUserInteractionable)Server.db;
+                        if (db.isUserRegistred(splittedStr[1]))
+                            throw new Exception("u already registred");
+
                         UserAuth.register(splittedStr[1]);
                     } catch (Exception e) {
                         send(e.toString().substring(21));
@@ -125,7 +129,7 @@ class Handle extends Thread {
 public class Server {
     public static final int PORT = 8080;
     public static LinkedList<Handle> serverList = new LinkedList<>(); // список всех нитей - экземпляров сервера, слушающих каждый своего клиента
-    private static DatabaseInteraction db;
+    public static DatabaseInteraction db;
 
     public static void main(String[] args) throws IOException {
         db = new DatabaseInteraction();

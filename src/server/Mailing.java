@@ -33,8 +33,6 @@ class Mailing {
             message.setText(msgContent);
 
             Transport.send(message);
-
-            throw new Exception("password sended to ur email");
         } catch (MessagingException e) {
             throw new Exception("sending failed");
             // e.printStackTrace();

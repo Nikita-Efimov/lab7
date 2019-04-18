@@ -5,7 +5,7 @@ class UserAuth {
     private boolean isAuth;
 
     public static void register(final String login) throws Exception {
-        System.out.println("Try to register with: " + login);
+        System.out.println("Try to register: " + login);
 
         SecureRandom rand = new SecureRandom();
         rand.setSeed(Clock.systemUTC().millis());
@@ -30,13 +30,17 @@ class UserAuth {
         }
 
         Mailing.send("Регистрация", "Вы успешно зарегистрировались!\nВаш пароль: " + password, login);
+        DBUserInteractionable db = (DBUserInteractionable)Server.db;
+        db.addUser(login, SHA1.encrypt(password));
+        // WTF WHY THIS IS USED
+        throw new Exception("password sended to ur email");
     }
 
     public UserAuth(final String login, final String password) {
         System.out.println("login: " + login);
         System.out.println("password: " + password);
-
-        isAuth = false;
+        DBUserInteractionable db = (DBUserInteractionable)Server.db;
+        isAuth = db.auth(login, password);
     }
 
     public boolean isAuth() {
