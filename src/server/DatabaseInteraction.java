@@ -6,7 +6,16 @@ interface DBUserInteractionable {
     public boolean auth(final String login, final String password);
 }
 
-class DatabaseInteraction implements DBUserInteractionable {
+interface DBCityCollection {
+    public void add(City city);
+    public void removeFirst();
+    public String show();
+    public void remove(City city);
+    public boolean addIfMax(City city);
+    public boolean removeLower(City city);
+}
+
+class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     private static final String DB_DRIVER = "org.postgresql.Driver";
     private static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/lab7";
     private static final String DB_USER = "root";
@@ -83,6 +92,36 @@ class DatabaseInteraction implements DBUserInteractionable {
             e.printStackTrace();
         }
         // заглушечка
+        return false;
+    }
+
+    @Override
+    public void add(City city) {
+
+    }
+
+    @Override
+    public void removeFirst() {
+
+    }
+
+    @Override
+    public void remove(City city) {
+
+    }
+
+    @Override
+    public String show() {
+        return "";
+    }
+
+    @Override
+    public boolean addIfMax(City city) {
+        return false;
+    }
+
+    @Override
+    public boolean removeLower(City city) {
         return false;
     }
 }

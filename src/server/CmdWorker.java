@@ -61,12 +61,26 @@ public class CmdWorker {
         cmdMap.put("help", new Key(this::list,  "просмотр списка команд"));
         cmdMap.put("man", new Key(this::man,  "описание команд"));
         cmdMap.put("exit", new Key(this::exit,  "выход"));
-
-
     }
 
     public CmdWorker() {
         priorityQueue = new PriorityBlockingQueue<>();
+    }
+
+    public String doCmd(String cmd) {
+        int indexOfSpace = cmd.indexOf(' ');
+        indexOfSpace = indexOfSpace == -1 ? cmd.length() : indexOfSpace;
+        String[] splittedCmd = {cmd.substring(0, indexOfSpace), indexOfSpace != cmd.length() ? cmd.substring(indexOfSpace + 1, cmd.length()).trim() : VOID_STR};
+
+        String out = "";
+        try {
+            out = cmdMap.get(splittedCmd[0]).func.apply(splittedCmd[1]);
+        } catch (NullPointerException e) {
+            out = CMD_NOT_FOUND;
+        } catch(Exception e) {
+            out = "uncorrect command syntax";
+        }
+        return out;
     }
 
     public void set(PriorityQueue<City> pq) {
@@ -115,22 +129,6 @@ public class CmdWorker {
         }
 
         return city;
-    }
-
-    public String doCmd(String cmd) {
-        int indexOfSpace = cmd.indexOf(' ');
-        indexOfSpace = indexOfSpace == -1 ? cmd.length() : indexOfSpace;
-        String[] splittedCmd = {cmd.substring(0, indexOfSpace), indexOfSpace != cmd.length() ? cmd.substring(indexOfSpace + 1, cmd.length()).trim() : VOID_STR};
-
-        String out = "";
-        try {
-            out = cmdMap.get(splittedCmd[0]).func.apply(splittedCmd[1]);
-        } catch (NullPointerException e) {
-            out = CMD_NOT_FOUND;
-        } catch(Exception e) {
-            out = "uncorrect command syntax";
-        }
-        return out;
     }
 
     public String load(final String filename) {
@@ -214,18 +212,21 @@ public class CmdWorker {
     public String removeLower(String jsonElem) {
         City city = processInput(jsonElem);
         if (city == null) return "";
-        lastChangeDate = new Date();
 
-        return priorityQueue
-        .stream()
-        .filter(e -> e.compareTo(city) < 0)
-        .map(Object::toString)
-        .collect(Collectors.joining("\n"));
+        DBCityCollection db = (DBCityCollection)Server.db;
+        if (db.removeLower(city))
+            lastChangeDate = new Date();
+
+        return "";
     }
 
     public String addIfMax(String jsonElem) {
         City city = processInput(jsonElem);
         if (city == null) return "";
+
+        DBCityCollection db = (DBCityCollection)Server.db;
+        if (db.addIfMax(city))
+            lastChangeDate = new Date();
 
         boolean addFlag = priorityQueue
         .stream()
@@ -243,6 +244,9 @@ public class CmdWorker {
         City city = processInput(jsonElem);
         if (city == null) return "";
 
+        DBCityCollection db = (DBCityCollection)Server.db;
+        db.remove(city);
+
         priorityQueue
         .stream()
         .filter(s -> s.equals(city))
@@ -254,34 +258,39 @@ public class CmdWorker {
         City city = processInput(jsonElem);
         if (city == null) return "";
 
-
+        DBCityCollection db = (DBCityCollection)Server.db;
+        db.add(city);
 
         priorityQueue.add(city);
+
         lastChangeDate = new Date();
         return "";
     }
 
     public String info(String str) {
         String out = "";
-        out += "Класс коллекции: " + (String)priorityQueue.getClass().getName() + '\n';
-        try {
-            out += "Класс элементов: " + (String)priorityQueue.peek().getClass().getName() + '\n';
-        } catch(Exception e) {}
-        out += "Колиечество элементов: " + new Integer(priorityQueue.size()).toString() + '\n';
-        out += "Дата инициализации: " + (String)initDate.toLocaleString() + '\n';
-        out += "Дата последнего изменения: " + (String)lastChangeDate.toLocaleString() + '\n';
+        // out += "Колиечество элементов: " + new Integer(priorityQueue.size()).toString() + '\n';
+        // out += "Дата инициализации: " + (String)initDate.toLocaleString() + '\n';
+        // out += "Дата последнего изменения: " + (String)lastChangeDate.toLocaleString() + '\n';
         return out;
     }
 
-    public String show(String str) {
+    public String show(String ignore) {
+        DBCityCollection db = (DBCityCollection)Server.db;
+        // return db.show();
+
         return priorityQueue
         .stream()
         .map(Object::toString)
         .collect(Collectors.joining("\n"));
     }
 
-    public String removeFirst(String str) {
+    public String removeFirst(String ignore) {
+        DBCityCollection db = (DBCityCollection)Server.db;
+        db.removeFirst();
+
         priorityQueue.poll();
+
         lastChangeDate = new Date();
         return "";
     }
@@ -308,14 +317,3 @@ public class CmdWorker {
         return "";
     }
 }
-
-
-
-
-
-
-
-
-
-
-
