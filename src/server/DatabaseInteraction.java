@@ -27,7 +27,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         getDBConnection();
         try {
             activateQuery("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, login TEXT NOT NULL UNIQUE, password TEXT NOT NULL);");
-            activateQuery("CREATE TABLE IF NOT EXISTS objects (id int4 NOT NULL, parent_id int4 REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY (id, parent_id));");
+            activateQuery("CREATE TABLE IF NOT EXISTS objects (id SERIAL, parent_id int4 REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, area_size int4, x int4, y int4, init_date int4, PRIMARY KEY (id, parent_id));");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -118,6 +118,18 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     public void add(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO objects (parent_id, name, area_size, x, y, init_date) VALUES (?, ?, ?, ?, ?, ?)");
+            statement.setInt(1, userId);
+            statement.setString(2, city.getName());
+            statement.setInt(3, city.getAreaSize());
+            statement.setInt(4, city.getX());
+            statement.setInt(5, city.getY());
+            statement.setInt(6, (int)city.getInitDate());
+            statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
