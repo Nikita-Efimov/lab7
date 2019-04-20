@@ -1,8 +1,30 @@
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
 
 class UserAuth {
+    private static Map<String, UserAuth> usersAndThreads;
     private boolean isAuth;
+    public String login;
+
+    static {
+        usersAndThreads = new HashMap<>();
+    }
+
+    public static UserAuth getCurrentThreadUserAuth() {
+        UserAuth ua = null;
+
+        try {
+            ua = usersAndThreads.get(Thread.currentThread().getName());
+        } catch (NullPointerException ignored) {}
+
+        return ua;
+    }
+
+    private static void addThreadUserAuth(UserAuth ua) {
+        usersAndThreads.put(Thread.currentThread().getName(), ua);
+    }
 
     public static void register(final String login) throws Exception {
         System.out.println("Try to register: " + login);
@@ -37,8 +59,13 @@ class UserAuth {
     }
 
     public UserAuth(final String login, final String password) {
+        // System.out.println(Thread.currentThread().getName());
+        addThreadUserAuth(this);
+
         System.out.println("login: " + login);
         System.out.println("password: " + password);
+        this.login = login;
+
         DBUserInteractionable db = (DBUserInteractionable)Server.db;
         isAuth = db.auth(login, password);
     }

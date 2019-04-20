@@ -9,8 +9,8 @@ interface DBUserInteractionable {
 interface DBCityCollection {
     public void add(City city);
     public void removeFirst();
-    public String show();
     public void remove(City city);
+    public String show();
     public boolean addIfMax(City city);
     public boolean removeLower(City city);
 }
@@ -97,7 +97,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
 
     @Override
     public void add(City city) {
-
+        System.out.println(UserAuth.getCurrentThreadUserAuth().login);
     }
 
     @Override
