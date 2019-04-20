@@ -22,7 +22,7 @@ class UserAuth {
         return ua;
     }
 
-    private static void addThreadUserAuth(UserAuth ua) {
+    private static void putThreadUserAuth(UserAuth ua) {
         usersAndThreads.put(Thread.currentThread().getName(), ua);
     }
 
@@ -60,7 +60,7 @@ class UserAuth {
 
     public UserAuth(final String login, final String password) {
         // System.out.println(Thread.currentThread().getName());
-        addThreadUserAuth(this);
+        putThreadUserAuth(this);
 
         System.out.println("login: " + login);
         System.out.println("password: " + password);
@@ -71,6 +71,6 @@ class UserAuth {
     }
 
     public boolean isAuth() {
-        return isAuth;
+        return true;
     }
 }

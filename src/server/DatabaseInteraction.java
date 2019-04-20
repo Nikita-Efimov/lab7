@@ -4,7 +4,7 @@ interface DBUserInteractionable {
     public void addUser(final String login, final String password);
     public boolean isUserRegistred(final String login);
     public boolean auth(final String login, final String password);
-    public int getUserIdFromLogin(final String login);
+    public Integer getUserIdFromLogin(final String login);
 }
 
 interface DBCityCollection {
@@ -97,38 +97,58 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     }
 
     @Override
-    public int getUserIdFromLogin(final String login) {
+    public Integer getUserIdFromLogin(final String login) {
+        Integer id = null;
 
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT id FROM users WHERE login = ?");
+            statement.setString(1, login);
+            ResultSet result = statement.executeQuery();
+
+            result.next();
+            id = result.getInt("id");
+        } catch (SQLException e) {
+            throw new RuntimeException("this user not authorized");
+        }
+
+        return id;
     }
 
     @Override
     public void add(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
-        System.out.println(UserAuth.getCurrentThreadUserAuth().login);
+
     }
 
     @Override
     public void removeFirst() {
+        final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
     }
 
     @Override
     public void remove(City city) {
+        final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
     }
 
     @Override
     public String show() {
+
         return "";
     }
 
     @Override
     public boolean addIfMax(City city) {
+        final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
+
         return false;
     }
 
     @Override
     public boolean removeLower(City city) {
+        final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
+
         return false;
     }
 }
