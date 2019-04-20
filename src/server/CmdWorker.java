@@ -45,8 +45,8 @@ public class CmdWorker {
         lastChangeDate = initDate;
         cmdMap = new HashMap<>();
 
-        cmdMap.put("load", new Key(this::load,  ""));
-        cmdMap.put("save", new Key(this::save,  ""));
+        // cmdMap.put("load", new Key(this::load,  ""));
+        // cmdMap.put("save", new Key(this::save,  ""));
         cmdMap.put("add", new Key(this::add,  "добавить новый элемент в коллекцию"));
         cmdMap.put("remove_first", new Key(this::removeFirst,  "удалить первый элемент из коллекции"));
         cmdMap.put("show", new Key(this::show,  "вывести в стандартный поток вывода все элементы коллекции в строковом представлении"));
@@ -123,7 +123,11 @@ public class CmdWorker {
     }
 
     public void set(PriorityQueue<City> pq) {
-        // priorityQueue = new PriorityBlockingQueue<City>(pq);
+        DBCityCollection db = (DBCityCollection)Server.db;
+
+        for (City city : pq) {
+            db.add(city);
+        }
     }
 
     public String load(final String filename) {
@@ -136,6 +140,7 @@ public class CmdWorker {
 
             NodeList nList = doc.getElementsByTagName("city");
 
+            DBCityCollection db = (DBCityCollection)Server.db;
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -144,7 +149,10 @@ public class CmdWorker {
                     City city = new City(eElement.getElementsByTagName("name").item(0).getTextContent(),
                              Integer.parseInt(eElement.getElementsByTagName("size").item(0).getTextContent()),
                              Integer.parseInt(eElement.getElementsByTagName("x").item(0).getTextContent()),
-                             Integer.parseInt(eElement.getElementsByTagName("y").item(0).getTextContent()));
+                             Integer.parseInt(eElement.getElementsByTagName("y").item(0).getTextContent()),
+                             Integer.parseInt(eElement.getElementsByTagName("init-date").item(0).getTextContent()));
+
+                    db.add(city);
                 }
             }
         } catch (java.io.FileNotFoundException e) {
@@ -165,27 +173,32 @@ public class CmdWorker {
             Element cityCont = document.createElement("city-cont");
             document.appendChild(cityCont);
 
-            Element city, name, size, x, y;
-            // for (City elem : priorityQueue) {
-            //     city = document.createElement("city");
-            //     cityCont.appendChild(city);
-            //
-            //     name = document.createElement("name");
-            //     name.appendChild(document.createTextNode(elem.name));
-            //     city.appendChild(name);
-            //
-            //     size = document.createElement("size");
-            //     size.appendChild(document.createTextNode(elem.areaSize.toString()));
-            //     city.appendChild(size);
-            //
-            //     x = document.createElement("x");
-            //     x.appendChild(document.createTextNode(elem.x.toString()));
-            //     city.appendChild(x);
-            //
-            //     y = document.createElement("y");
-            //     y.appendChild(document.createTextNode(elem.y.toString()));
-            //     city.appendChild(y);
-            // }
+            Element city, name, size, x, y, initDate;
+            PriorityQueue<City> priorityQueue = new PriorityQueue();
+            for (City elem : priorityQueue) {
+                city = document.createElement("city");
+                cityCont.appendChild(city);
+
+                name = document.createElement("name");
+                name.appendChild(document.createTextNode(elem.name));
+                city.appendChild(name);
+
+                size = document.createElement("size");
+                size.appendChild(document.createTextNode(elem.areaSize.toString()));
+                city.appendChild(size);
+
+                x = document.createElement("x");
+                x.appendChild(document.createTextNode(elem.x.toString()));
+                city.appendChild(x);
+
+                y = document.createElement("y");
+                y.appendChild(document.createTextNode(elem.y.toString()));
+                city.appendChild(y);
+
+                initDate = document.createElement("init-date");
+                initDate.appendChild(document.createTextNode(((Integer)(int)elem.getInitDate()).toString()));
+                city.appendChild(initDate);
+            }
 
             DOMSource domSource = new DOMSource(document);
             StreamResult result = new StreamResult(new BufferedWriter(new FileWriter(filename)));
@@ -248,10 +261,7 @@ public class CmdWorker {
     }
 
     public String info(String str) {
-        String out = "";
-        // out += "Колиечество элементов: " + new Integer(priorityQueue.size()).toString() + '\n';
-        // out += "Дата инициализации: " + (String)initDate.toLocaleString() + '\n';
-        // out += "Дата последнего изменения: " + (String)lastChangeDate.toLocaleString() + '\n';
+        String out = "Дата последнего изменения: " + (String)lastChangeDate.toLocaleString() + '\n';
         return out;
     }
 

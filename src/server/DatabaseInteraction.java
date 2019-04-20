@@ -4,6 +4,7 @@ import java.sql.*;
 import java.time.OffsetDateTime;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.PriorityQueue;
 
 interface DBUserInteractionable {
     public void addUser(final String login, final String password);
