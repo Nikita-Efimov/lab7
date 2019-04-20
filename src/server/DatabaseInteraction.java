@@ -148,14 +148,13 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
 
         PreparedStatement statement = null;
         try {
-            statement = dbConnection.prepareStatement("DELETE FROM objects [WHERE parent_id = ?] LIMIT 1");
+            statement = dbConnection.prepareStatement("DELETE FROM objects WHERE ctid IN (SELECT ctid FROM objects WHERE parent_id = ? LIMIT 1)");
 
             statement.setInt(1, userId);
             statement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -163,14 +162,13 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
         try {
-            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y, init_date)= (?, ?, ?, ?, ?, ?);");
+            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y)= (?, ?, ?, ?, ?);");
 
             statement.setInt(1, userId);
             statement.setString(2, city.getName());
             statement.setInt(3, city.getAreaSize());
             statement.setInt(4, city.getX());
             statement.setInt(5, city.getY());
-            statement.setInt(6, (int)city.getInitDate());
             statement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -193,7 +191,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
                 city.areaSize = result.getInt("area_size");
                 city.initDate = OffsetDateTime.ofInstant(Instant.ofEpochSecond(result.getInt("init_date")), ZoneId.systemDefault());
 
-                returnString += city.toString() + "\n";
+                returnString += city.toString() + '\n';
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,28 +205,21 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
         try {
-            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id = ?;");
-            statement.setInt(1, userId);
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects");
             ResultSet result = statement.executeQuery();
 
-            City maxcity = null;
-            City curcity = null;
+            City maxCity = new City();
+            City curCity = new City();
             while (result.next()){
-                curcity.setName(result.getString("name"));
-                curcity.x=(result.getInt("x"));
-                curcity.y=(result.getInt("y"));
-                curcity.areaSize=(result.getInt("area_size"));
-                curcity.initDate=OffsetDateTime.parse(result.getString("init_date"));
+                curCity.setName(result.getString("name"));
+                curCity.x = result.getInt("x");
+                curCity.y = result.getInt("y");
+                curCity.areaSize = result.getInt("area_size");
 
-
-                if(curcity.compareTo(maxcity)>0) maxcity=curcity ;
-
+                if (curCity.compareTo(maxCity) < 0) maxCity = curCity;
             }
 
-            if(city.compareTo(maxcity)>0) {
-
-
-
+            if (city.compareTo(maxCity) < 0) {
                 statement = dbConnection.prepareStatement("INSERT INTO objects (parent_id, name, area_size, x, y, init_date) VALUES (?, ?, ?, ?, ?, ?)");
                 statement.setInt(1, userId);
                 statement.setString(2, city.getName());
@@ -238,39 +229,28 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
                 statement.setInt(6, (int)city.getInitDate());
                 statement.execute();
 
-
                 return true;
             }
-
-
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-
         return false;
     }
-
-
 
     @Override
     public boolean removeLower(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
-        PreparedStatement statement = null;
-
         try {
-            statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id=?;");
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id = ?");
             statement.setInt(1, userId);
             statement.execute();
 
             ResultSet result = statement.executeQuery();
             statement = dbConnection.prepareStatement("DELETE FROM objects [WHERE id=IN (?)]");
 
-
-            String ids="";
+            String ids = "";
             City curcity=null;
             while (result.next()){
                 curcity.setName(result.getString("name"));
@@ -279,7 +259,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
                 curcity.areaSize=(result.getInt("area_size"));
                 curcity.initDate=OffsetDateTime.parse(result.getString("init_date"));
 
-                if(city.compareTo(curcity)>0) {
+                if(city.compareTo(curCity) > 0) {
 
                     ids+=","+result.getInt("id");
 
@@ -297,6 +277,4 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         }
         return false;
     }
-
-
 }
