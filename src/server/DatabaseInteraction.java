@@ -252,7 +252,6 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
 
             statement = dbConnection.prepareStatement("DELETE FROM objects WHERE ctid IN (SELECT ctid FROM objects WHERE id = ? LIMIT 1)");
 
-            String ids = "";
             City curCity = new City();
             while (result.next()) {
                 curCity.setName(result.getString("name"));
