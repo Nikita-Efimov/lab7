@@ -162,7 +162,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
         try {
-            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y)= (?, ?, ?, ?, ?);");
+            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y) = (?, ?, ?, ?, ?);");
 
             statement.setInt(1, userId);
             statement.setString(2, city.getName());
@@ -241,40 +241,35 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     @Override
     public boolean removeLower(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
+        boolean isRemoved = false;
 
         try {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id = ?");
             statement.setInt(1, userId);
-            statement.execute();
 
             ResultSet result = statement.executeQuery();
-            statement = dbConnection.prepareStatement("DELETE FROM objects [WHERE id=IN (?)]");
+
+            statement = dbConnection.prepareStatement("DELETE FROM objects WHERE ctid IN (SELECT ctid FROM objects WHERE id = ? LIMIT 1)");
 
             String ids = "";
-            City curcity=null;
-            while (result.next()){
-                curcity.setName(result.getString("name"));
-                curcity.x=(result.getInt("x"));
-                curcity.y=(result.getInt("y"));
-                curcity.areaSize=(result.getInt("area_size"));
-                curcity.initDate=OffsetDateTime.parse(result.getString("init_date"));
+            City curCity = new City();
+            while (result.next()) {
+                curCity.setName(result.getString("name"));
+                curCity.x = result.getInt("x");
+                curCity.y = result.getInt("y");
+                curCity.areaSize = result.getInt("area_size");
 
                 if(city.compareTo(curCity) > 0) {
-
-                    ids+=","+result.getInt("id");
-
+                    statement.setInt(1, result.getInt("id"));
+                    statement.execute();
+                    isRemoved = true;
                 }
 
             }
-            ids=ids.substring(1);
-
-            statement.setString(1, ids);
-            statement.execute();
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+
+        return isRemoved;
     }
 }
