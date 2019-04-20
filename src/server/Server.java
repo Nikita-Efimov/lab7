@@ -8,6 +8,7 @@ class Handle extends Thread {
     private BufferedReader in; // поток чтения из сокета
     private BufferedWriter out; // поток записи в сокет
     private static CmdWorker worker;
+    private UserAuth ua;
 
     static {
         worker = new CmdWorker();
@@ -87,7 +88,7 @@ class Handle extends Thread {
         } catch (ArrayIndexOutOfBoundsException ingnored) {}
 
         // авторизируемся значитца
-        UserAuth ua = new UserAuth(login, password);
+        ua = new UserAuth(login, password);
         if (!ua.isAuth()) {
             send("Uncorrect login or password");
             return;

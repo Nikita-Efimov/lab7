@@ -20,6 +20,30 @@ class City extends Place implements Comparable, Serializable {
 		this.y = y;
 	}
 
+	public City(String name, Integer areaSize, Integer x, Integer y, Integer initDate) {
+		super(name);
+		this.initDate = OffsetDateTime.now();
+		this.areaSize = areaSize;
+		this.x = x;
+		this.y = y;
+	}
+
+	public int getAreaSize() {
+		return areaSize;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public long getInitDate() {
+		return (long)initDate.toEpochSecond();
+	}
+
 	@Override
 	public int compareTo(Object object) {
 		if (this == object)
