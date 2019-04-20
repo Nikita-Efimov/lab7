@@ -36,7 +36,6 @@ final class Key {
 
 public class CmdWorker {
     protected Map<String, Key> cmdMap;
-    protected PriorityBlockingQueue<City> priorityQueue;
     protected Date initDate;
     protected Date lastChangeDate;
     protected final String CMD_NOT_FOUND = "command not found";
@@ -59,12 +58,9 @@ public class CmdWorker {
         cmdMap.put("list", new Key(this::list,  "просмотр списка команд"));
         cmdMap.put("help", new Key(this::list,  "просмотр списка команд"));
         cmdMap.put("man", new Key(this::man,  "описание команд"));
-        cmdMap.put("exit", new Key(this::exit,  "выход"));
     }
 
-    public CmdWorker() {
-        priorityQueue = new PriorityBlockingQueue<>();
-    }
+    public CmdWorker() {}
 
     public String doCmd(String cmd) {
         int indexOfSpace = cmd.indexOf(' ');
@@ -79,11 +75,8 @@ public class CmdWorker {
         } catch(Exception e) {
             out = "uncorrect command syntax";
         }
-        return out;
-    }
 
-    public void set(PriorityQueue<City> pq) {
-        priorityQueue = new PriorityBlockingQueue<City>(pq);
+        return out;
     }
 
     protected City processInput(String jsonInput) {
@@ -130,6 +123,10 @@ public class CmdWorker {
         return city;
     }
 
+    public void set(PriorityQueue<City> pq) {
+        // priorityQueue = new PriorityBlockingQueue<City>(pq);
+    }
+
     public String load(final String filename) {
         try {
             FileReader reader = new FileReader(filename);
@@ -144,11 +141,11 @@ public class CmdWorker {
                 Node nNode = nList.item(temp);
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element)nNode;
-                    priorityQueue.add(
-                    new City(eElement.getElementsByTagName("name").item(0).getTextContent(),
+
+                    City city = new City(eElement.getElementsByTagName("name").item(0).getTextContent(),
                              Integer.parseInt(eElement.getElementsByTagName("size").item(0).getTextContent()),
                              Integer.parseInt(eElement.getElementsByTagName("x").item(0).getTextContent()),
-                             Integer.parseInt(eElement.getElementsByTagName("y").item(0).getTextContent())));
+                             Integer.parseInt(eElement.getElementsByTagName("y").item(0).getTextContent()));
                 }
             }
         } catch (java.io.FileNotFoundException e) {
@@ -170,26 +167,26 @@ public class CmdWorker {
             document.appendChild(cityCont);
 
             Element city, name, size, x, y;
-            for (City elem : priorityQueue) {
-                city = document.createElement("city");
-                cityCont.appendChild(city);
-
-                name = document.createElement("name");
-                name.appendChild(document.createTextNode(elem.name));
-                city.appendChild(name);
-
-                size = document.createElement("size");
-                size.appendChild(document.createTextNode(elem.areaSize.toString()));
-                city.appendChild(size);
-
-                x = document.createElement("x");
-                x.appendChild(document.createTextNode(elem.x.toString()));
-                city.appendChild(x);
-
-                y = document.createElement("y");
-                y.appendChild(document.createTextNode(elem.y.toString()));
-                city.appendChild(y);
-            }
+            // for (City elem : priorityQueue) {
+            //     city = document.createElement("city");
+            //     cityCont.appendChild(city);
+            //
+            //     name = document.createElement("name");
+            //     name.appendChild(document.createTextNode(elem.name));
+            //     city.appendChild(name);
+            //
+            //     size = document.createElement("size");
+            //     size.appendChild(document.createTextNode(elem.areaSize.toString()));
+            //     city.appendChild(size);
+            //
+            //     x = document.createElement("x");
+            //     x.appendChild(document.createTextNode(elem.x.toString()));
+            //     city.appendChild(x);
+            //
+            //     y = document.createElement("y");
+            //     y.appendChild(document.createTextNode(elem.y.toString()));
+            //     city.appendChild(y);
+            // }
 
             DOMSource domSource = new DOMSource(document);
             StreamResult result = new StreamResult(new BufferedWriter(new FileWriter(filename)));
@@ -227,15 +224,6 @@ public class CmdWorker {
         if (db.addIfMax(city))
             lastChangeDate = new Date();
 
-        boolean addFlag = priorityQueue
-        .stream()
-        .noneMatch(e -> e.compareTo(city) >= 0);
-
-        if (addFlag) {
-            priorityQueue.add(city);
-            lastChangeDate = new Date();
-        }
-
         return "";
     }
 
@@ -246,10 +234,6 @@ public class CmdWorker {
         DBCityCollection db = (DBCityCollection)Server.db;
         db.remove(city);
 
-        priorityQueue
-        .stream()
-        .filter(s -> s.equals(city))
-        .forEach((e) -> priorityQueue.remove(e));
         return "";
     }
 
@@ -259,8 +243,6 @@ public class CmdWorker {
 
         DBCityCollection db = (DBCityCollection)Server.db;
         db.add(city);
-
-        priorityQueue.add(city);
 
         lastChangeDate = new Date();
         return "";
@@ -276,19 +258,12 @@ public class CmdWorker {
 
     public String show(String ignore) {
         DBCityCollection db = (DBCityCollection)Server.db;
-        // return db.show();
-
-        return priorityQueue
-        .stream()
-        .map(Object::toString)
-        .collect(Collectors.joining("\n"));
+        return db.show();
     }
 
     public String removeFirst(String ignore) {
         DBCityCollection db = (DBCityCollection)Server.db;
         db.removeFirst();
-
-        priorityQueue.poll();
 
         lastChangeDate = new Date();
         return "";
@@ -310,9 +285,5 @@ public class CmdWorker {
         .stream()
         .map(Object::toString)
         .collect(Collectors.joining("\n"));
-    }
-
-    public String exit(String str) {
-        return "";
     }
 }

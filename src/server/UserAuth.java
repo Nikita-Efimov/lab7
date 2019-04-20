@@ -27,7 +27,7 @@ class UserAuth {
     }
 
     public static void register(final String login) throws Exception {
-        System.out.println("Try to register: " + login);
+        // System.out.println("Try to register: " + login);
 
         SecureRandom rand = new SecureRandom();
         rand.setSeed(Clock.systemUTC().millis());
@@ -62,8 +62,8 @@ class UserAuth {
         // System.out.println(Thread.currentThread().getName());
         putThreadUserAuth(this);
 
-        System.out.println("login: " + login);
-        System.out.println("password: " + password);
+        // System.out.println("login: " + login);
+        // System.out.println("password: " + password);
         this.login = login;
 
         DBUserInteractionable db = (DBUserInteractionable)Server.db;

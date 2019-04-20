@@ -8,6 +8,10 @@ class City extends Place implements Comparable, Serializable {
 	protected Integer areaSize, x, y;
 	protected OffsetDateTime initDate;
 
+	public City() {
+		this("Unnamed", 0);
+	}
+
 	public City(String name, Integer areaSize) {
 		this(name, areaSize, 0, 0);
 	}

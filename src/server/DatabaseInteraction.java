@@ -1,8 +1,9 @@
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.sql.*;
 import java.time.OffsetDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 
 interface DBUserInteractionable {
     public void addUser(final String login, final String password);
@@ -21,16 +22,15 @@ interface DBCityCollection {
 }
 
 class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
-
-    private static final String DB_PASSWORD = "admin";
-    private static final String DB_USER = "postgres";
-    private static final String DB_CONNECTION = "jdbc:postgresql://127.0.0.1:5432/laba7DB";
-
-
     private static final String DB_DRIVER = "org.postgresql.Driver";
-    //private static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/lab7";
-    //private static final String DB_USER = "root";
-    //private static final String DB_PASSWORD = "root";
+
+    // private static final String DB_PASSWORD = "admin";
+    // private static final String DB_USER = "postgres";
+    // private static final String DB_CONNECTION = "jdbc:postgresql://127.0.0.1:5432/laba7DB";
+
+    private static final String DB_CONNECTION = "jdbc:postgresql://localhost:5432/lab7";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "root";
     private Connection dbConnection;
 
     public DatabaseInteraction() {
@@ -51,7 +51,7 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         }
 
         try {
-            dbConnection = DriverManager.getConnection(DB_CONNECTION, DB_USER,DB_PASSWORD);
+            dbConnection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -142,22 +142,16 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
         }
     }
 
-
     @Override
     public void removeFirst() {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
-
         PreparedStatement statement = null;
         try {
-            statement = dbConnection.prepareStatement("DELETE FROM objects [WHERE parent_id=?] LIMIT 1;");
-
+            statement = dbConnection.prepareStatement("DELETE FROM objects [WHERE parent_id = ?] LIMIT 1");
 
             statement.setInt(1, userId);
             statement.execute();
-
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -168,10 +162,8 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     public void remove(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
-        PreparedStatement statement = null;
         try {
-            statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y, init_date)= (?, ?, ?, ?, ?, ?);");
-
+            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM objects WHERE (parent_id, name, area_size, x, y, init_date)= (?, ?, ?, ?, ?, ?);");
 
             statement.setInt(1, userId);
             statement.setString(2, city.getName());
@@ -180,42 +172,30 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
             statement.setInt(5, city.getY());
             statement.setInt(6, (int)city.getInitDate());
             statement.execute();
-
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     public String show() {
-        PreparedStatement statement = null;
-        String returnString="";
+        String returnString = "";
+
         try {
-            statement = dbConnection.prepareStatement("SELECT * FROM objects;");
-
-            statement.execute();
-
-
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects;");
             ResultSet result = statement.executeQuery();
 
-            City curcity=null;
-            while (result.next()){
-                curcity.setName(result.getString("name"));
-                curcity.x=(result.getInt("x"));
-                curcity.y=(result.getInt("y"));
-                curcity.areaSize=(result.getInt("area_size"));
-                curcity.initDate=OffsetDateTime.parse(result.getString("init_date"));
+            City city = new City();
+            while (result.next()) {
+                city.setName(result.getString("name"));
+                city.x = result.getInt("x");
+                city.y = result.getInt("y");
+                city.areaSize = result.getInt("area_size");
+                city.initDate = OffsetDateTime.ofInstant(Instant.ofEpochSecond(result.getInt("init_date")), ZoneId.systemDefault());
 
-
-
-                returnString+= curcity.toString()+"\n";
-
+                returnString += city.toString() + "\n";
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -226,19 +206,13 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     public boolean addIfMax(City city) {
         final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
 
-
-        PreparedStatement statement = null;
-
         try {
-            statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id=?;");
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM objects WHERE parent_id = ?;");
             statement.setInt(1, userId);
-            statement.execute();
-
-
             ResultSet result = statement.executeQuery();
 
-            City maxcity=null;
-            City curcity=null;
+            City maxcity = null;
+            City curcity = null;
             while (result.next()){
                 curcity.setName(result.getString("name"));
                 curcity.x=(result.getInt("x"));
