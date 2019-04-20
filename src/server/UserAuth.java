@@ -71,6 +71,6 @@ class UserAuth {
     }
 
     public boolean isAuth() {
-        return true;
+        return isAuth;
     }
 }
