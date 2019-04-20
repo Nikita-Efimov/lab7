@@ -4,6 +4,7 @@ interface DBUserInteractionable {
     public void addUser(final String login, final String password);
     public boolean isUserRegistred(final String login);
     public boolean auth(final String login, final String password);
+    public int getUserIdFromLogin(final String login);
 }
 
 interface DBCityCollection {
@@ -96,7 +97,13 @@ class DatabaseInteraction implements DBUserInteractionable, DBCityCollection {
     }
 
     @Override
+    public int getUserIdFromLogin(final String login) {
+
+    }
+
+    @Override
     public void add(City city) {
+        final int userId = getUserIdFromLogin(UserAuth.getCurrentThreadUserAuth().login);
         System.out.println(UserAuth.getCurrentThreadUserAuth().login);
     }
 
